@@ -1,0 +1,60 @@
+<!--
+ * @Author: jhl
+ * @Date: 2021-11-10 11:48:40
+ * @LastEditors: jhl
+ * @LastEditTime: 2021-11-12 19:58:31
+ * @Description: 
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <button id="connect">连接</button> <br />
+    <button id="send" disabled="true">发送数据</button> <br />
+    从服务端接收的数据如下: <br />
+    <span id="recv"></span>
+    <script>
+      const connect = document.querySelector("#connect");
+      const send = document.querySelector("#send");
+      const recv = document.querySelector("#recv");
+      let ws;
+      connect.onclick = function () {
+        ws = new WebSocket("ws://localhost:9998");
+        ws.onopen = ev => {
+          console.log("连接服务端成功了", ev);
+          send.disabled = false;
+        };
+        ws.onclose = closeEvent => {
+          console.log("连接关闭", closeEvent);
+          send.disabled = true;
+        };
+        ws.onerror = () => {
+          console.log("连接服务端失败了");
+          send.disabled = true;
+        };
+        ws.onmessage = msgEvent => {
+          console.log("接收的从服务端发送过来的数据", msgEvent);
+          recv.innerHTML = msgEvent.data;
+        };
+      };
+
+      send.onclick = function () {
+        // ws.send("hello socket from frontend");
+        ws.send(
+          JSON.stringify({
+            action: "fullScreen", // getData——获取数据， fullScreen —— 全屏, themeChange —— 主题切换
+            socketType: "trendData", // 获取 trend 图表的数据
+            charName: "trend", // 图表的名字
+            // value: true, // true —— 全屏状态  false —— 非全屏状态
+            value: "chalk", // 主题类型
+          })
+        );
+      };
+    </script>
+  </body>
+</html>
